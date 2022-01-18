@@ -1,4 +1,4 @@
-# Hello World Example
+# Proyecto IoT para la monitorización de la calidad del aire
 
 Starts a FreeRTOS task to print "Hello World"
 
