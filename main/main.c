@@ -10,14 +10,15 @@
 #include "nvs_flash.h"
 #include "esp_netif.h"
 #include "protocol_examples_common.h"
-#include "cJSON.h"
+//#include "cJSON.h"
+#include "cbor.h"
 
 #include "sensor_sgp30.h"
 #include "comm_mqtt.h"
 #include "globals.h"
 
 
-#define SGP30_PERIODIC_READING      1000000
+#define SGP30_READING_PERIOD_US     1000000
 #define MQTT_SENDING_PERIOD_SEC     3 // menuconfig
 
 
@@ -36,11 +37,30 @@ static void timer_sensor_sgp30_callback(void* arg) {
         uint16_t co2_ppm = sum_co2 / num_readings;
         ESP_LOGI(TAG_SGP30, "CO2(ppm) -> %d", co2_ppm);
 
-        cJSON *data_json = cJSON_CreateObject();
-        cJSON_AddNumberToObject(data_json, "CO2", co2_ppm);
-        const char *data = cJSON_Print(data_json);
-        mqtt_publish(data);
+        // cJSON *data_json = cJSON_CreateObject();
+        // cJSON_AddNumberToObject(data_json, "CO2", co2_ppm);
+        // const char *data = cJSON_Print(data_json);
+        // mqtt_publish(data);
 
+        // CBOR creation
+        CborEncoder root_encoder;
+        uint8_t data_cbor[100];
+        cbor_encoder_init(&root_encoder, data_cbor, sizeof(data_cbor), 0);
+
+        CborEncoder array_encoder;
+        CborEncoder map_encoder;
+        cbor_encoder_create_array(&root_encoder, &array_encoder, 1);    // 1-item length array -> [
+        cbor_encoder_create_map(&array_encoder, &map_encoder, 1);       // 1-item length map -> {
+
+        cbor_encode_text_stringz(&map_encoder, "CO2");
+        cbor_encode_uint(&map_encoder, co2_ppm);
+
+        cbor_encoder_close_container(&array_encoder, &map_encoder);     // }
+        cbor_encoder_close_container(&root_encoder, &array_encoder);    // ]
+
+        //data_cbor[cbor_encoder_get_buffer_size(&root_encoder, data_cbor)] = 0x0; // '\0' final character
+        mqtt_publish((char*)data_cbor);
+        ESP_LOGI(TAG_SGP30, "CBOR -> %s", (char*)data_cbor);
         num_readings = 0;
         sum_co2 = 0;
     }
@@ -72,6 +92,6 @@ void app_main(void)
     
     mqtt_app_start();
 
-    esp_timer_start_periodic(timer_sensor_sgp30, SGP30_PERIODIC_READING);    
+    esp_timer_start_periodic(timer_sensor_sgp30, SGP30_READING_PERIOD_US);    
 
 }

@@ -73,7 +73,7 @@ void mqtt_app_start(void) {
     esp_mqtt_client_start(global_client);
 }
 
-void mqtt_publish (const char *data) {
+void mqtt_publish (char *data) {
     esp_mqtt_client_publish(global_client, ESP_LOCATION, data, 0, MQTT_QOS, 0);
     ESP_LOGI(TAG_MQTT, "Message published in %s", ESP_LOCATION);
 }
