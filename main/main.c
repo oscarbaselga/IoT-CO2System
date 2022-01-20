@@ -1,49 +1,77 @@
-/* Hello World Example
-
-   This example code is in the Public Domain (or CC0 licensed, at your option.)
-
-   Unless required by applicable law or agreed to in writing, this
-   software is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
-   CONDITIONS OF ANY KIND, either express or implied.
-*/
 #include <stdio.h>
 #include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "esp_system.h"
+
+#include "esp_timer.h"
+#include "esp_log.h"
+#include "esp_event.h"
 #include "esp_spi_flash.h"
+#include "nvs_flash.h"
+#include "esp_netif.h"
+#include "protocol_examples_common.h"
+#include "cJSON.h"
 
-#ifdef CONFIG_IDF_TARGET_ESP32
-#define CHIP_NAME "ESP32"
-#endif
+#include "sensor_sgp30.h"
+#include "comm_mqtt.h"
+#include "globals.h"
 
-#ifdef CONFIG_IDF_TARGET_ESP32S2BETA
-#define CHIP_NAME "ESP32-S2 Beta"
-#endif
+
+#define SGP30_PERIODIC_READING      1000000
+#define MQTT_SENDING_PERIOD_SEC     3 // menuconfig
+
+
+esp_timer_handle_t timer_sensor_sgp30;
+
+
+// TIMER CALLBACKS
+static void timer_sensor_sgp30_callback(void* arg) {
+    static uint16_t num_readings = 0;
+    static uint32_t sum_co2 = 0;
+
+    if(num_readings < MQTT_SENDING_PERIOD_SEC) {
+        sum_co2 += (uint32_t)sgp30_co2_reading();
+        num_readings++;
+    } else {
+        uint16_t co2_ppm = sum_co2 / num_readings;
+        ESP_LOGI(TAG_SGP30, "CO2(ppm) -> %d", co2_ppm);
+
+        cJSON *data_json = cJSON_CreateObject();
+        cJSON_AddNumberToObject(data_json, "CO2", co2_ppm);
+        const char *data = cJSON_Print(data_json);
+        mqtt_publish(data);
+
+        num_readings = 0;
+        sum_co2 = 0;
+    }
+
+}
 
 void app_main(void)
 {
-    printf("Hello world!\n");
+    
+    ESP_ERROR_CHECK(nvs_flash_init());
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
 
-    /* Print chip information */
-    esp_chip_info_t chip_info;
-    esp_chip_info(&chip_info);
-    printf("This is %s chip with %d CPU cores, WiFi%s%s, ",
-            CHIP_NAME,
-            chip_info.cores,
-            (chip_info.features & CHIP_FEATURE_BT) ? "/BT" : "",
-            (chip_info.features & CHIP_FEATURE_BLE) ? "/BLE" : "");
+    /* -------------------- SENSOR SGP30 -------------------- */
+    // Configuration and initialization
+    sgp30_config();
+    sgp30_init();
 
-    printf("silicon revision %d, ", chip_info.revision);
+    // Periodic timer for a CO2 reading
+    const esp_timer_create_args_t timer_sensor_sgp30_args = {
+        .callback = &timer_sensor_sgp30_callback,
+        .name = "timer sensor sgp30"
+    };
+    esp_timer_create(&timer_sensor_sgp30_args, &timer_sensor_sgp30);
 
-    printf("%dMB %s flash\n", spi_flash_get_chip_size() / (1024 * 1024),
-            (chip_info.features & CHIP_FEATURE_EMB_FLASH) ? "embedded" : "external");
 
-    for (int i = 10; i >= 0; i--) {
-        printf("Restarting in %d seconds...\n", i);
-        vTaskDelay(1000 / portTICK_PERIOD_MS);
-    }
-    printf("Restarting now.\n");
-    fflush(stdout);
-    esp_restart();
+    /* --------------------- DEPLOYMENT --------------------- */
+    ESP_ERROR_CHECK(example_connect());
+    
+    mqtt_app_start();
+
+    esp_timer_start_periodic(timer_sensor_sgp30, SGP30_PERIODIC_READING);    
+
 }

@@ -5,5 +5,7 @@
 
 PROJECT_NAME := miot
 
+EXTRA_COMPONENT_DIRS = ./protocol_examples_common
+
 include $(IDF_PATH)/make/project.mk
 
