@@ -50,7 +50,10 @@ static void timer_sensor_sgp30_callback(void* arg) {
         CborEncoder array_encoder;
         CborEncoder map_encoder;
         cbor_encoder_create_array(&root_encoder, &array_encoder, 1);    // 1-item length array -> [
-        cbor_encoder_create_map(&array_encoder, &map_encoder, 1);       // 1-item length map -> {
+        cbor_encoder_create_map(&array_encoder, &map_encoder, 2);       // 2-item length map -> {
+
+        cbor_encode_text_stringz(&map_encoder, "ESP_ID");
+        cbor_encode_text_stringz(&map_encoder, ESP_ID);
 
         cbor_encode_text_stringz(&map_encoder, "CO2");
         cbor_encode_uint(&map_encoder, co2_ppm);

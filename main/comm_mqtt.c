@@ -1,5 +1,7 @@
 #include "comm_mqtt.h"
 
+#include <string.h>
+
 #include "esp_log.h"
 #include "mqtt_client.h"
 
@@ -74,6 +76,10 @@ void mqtt_app_start(void) {
 }
 
 void mqtt_publish (char *data) {
-    esp_mqtt_client_publish(global_client, ESP_LOCATION, data, 0, MQTT_QOS, 0);
-    ESP_LOGI(TAG_MQTT, "Message published in %s", ESP_LOCATION);
+    char topic[100];
+    strcpy(topic, ESP_LOCATION);
+    strcat(topic, ESP_ID);
+
+    esp_mqtt_client_publish(global_client, topic, data, 0, MQTT_QOS, 0);
+    ESP_LOGI(TAG_MQTT, "Message published in %s", topic);
 }
