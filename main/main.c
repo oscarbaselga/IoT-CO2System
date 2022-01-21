@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "sdkconfig.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -15,6 +16,7 @@
 
 #include "sensor_sgp30.h"
 #include "comm_mqtt.h"
+#include "comm_http.h"
 #include "globals.h"
 
 
@@ -61,9 +63,8 @@ static void timer_sensor_sgp30_callback(void* arg) {
         cbor_encoder_close_container(&array_encoder, &map_encoder);     // }
         cbor_encoder_close_container(&root_encoder, &array_encoder);    // ]
 
-        //data_cbor[cbor_encoder_get_buffer_size(&root_encoder, data_cbor)] = 0x0; // '\0' final character
         mqtt_publish((char*)data_cbor);
-        ESP_LOGI(TAG_SGP30, "CBOR -> %s", (char*)data_cbor);
+        //ESP_LOGI(TAG_SGP30, "CBOR -> %s", (char*)data_cbor);
         num_readings = 0;
         sum_co2 = 0;
     }
@@ -72,6 +73,8 @@ static void timer_sensor_sgp30_callback(void* arg) {
 
 void app_main(void)
 {
+    strcpy(ESP_LOCATION, CONFIG_ESP_LOCATION);
+    strcpy(ESP_ID, CONFIG_ESP_ID);
     
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
@@ -93,7 +96,8 @@ void app_main(void)
     /* --------------------- DEPLOYMENT --------------------- */
     ESP_ERROR_CHECK(example_connect());
     
-    mqtt_app_start();
+    ESP_ERROR_CHECK(mqtt_app_start());
+    ESP_ERROR_CHECK(start_rest_server());
 
     esp_timer_start_periodic(timer_sensor_sgp30, SGP30_READING_PERIOD_US);    
 

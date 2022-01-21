@@ -5,9 +5,6 @@
 #include "esp_log.h"
 #include "mqtt_client.h"
 
-#include "driver/i2c.h"
-#include "hal/i2c_types.h"
-
 #include "globals.h"
 
 
@@ -65,7 +62,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
     mqtt_event_handler_cb(event_data);
 }
 
-void mqtt_app_start(void) {
+esp_err_t mqtt_app_start(void) {
     esp_mqtt_client_config_t mqtt_cfg = {
         .uri = MQTT_BROKER_URL,
     };
@@ -73,6 +70,8 @@ void mqtt_app_start(void) {
     global_client = esp_mqtt_client_init(&mqtt_cfg);
     esp_mqtt_client_register_event(global_client, ESP_EVENT_ANY_ID, mqtt_event_handler, global_client);
     esp_mqtt_client_start(global_client);
+
+    return ESP_OK;
 }
 
 void mqtt_publish (char *data) {
