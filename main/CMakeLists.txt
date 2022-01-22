@@ -1,2 +1,2 @@
-idf_component_register(SRCS "main.c" "sensor_sgp30.c" "comm_mqtt.c" "comm_http.c"
+idf_component_register(SRCS "main.c" "sensor_sgp30.c" "comm_mqtt.c" "comm_http.c" "comm_sntp.c"
                     INCLUDE_DIRS ".")

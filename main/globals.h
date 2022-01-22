@@ -4,6 +4,8 @@
 #define TAG_SGP30           "SENSOR-SGP30"
 #define TAG_MQTT            "COMM-MQTT"
 #define TAG_HTTP            "COMM-HTTP"
+#define TAG_SNTP            "COMM-SNTP"
+#define TAG_SLEEP           "PWR-SLEEP"
 
 #define CONFIG_ESP_LOCATION        "/INFORMATICA/2/9/" // menuconfig
 #define CONFIG_ESP_ID              "1" // menuconfig
