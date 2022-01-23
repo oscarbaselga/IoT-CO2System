@@ -28,8 +28,8 @@
 #define MQTT_SENDING_PERIOD_SEC     3 // menuconfig
 #define PM_SLEEP_MAX_FREQ_MHZ       240 // menuconfig
 #define PM_SLEEP_MIN_FREQ_MHZ       40 // menuconfig
-#define DEEP_SLEEP_START_TIME_HR    22 // menuconfig (1 <= . <= 24)
-#define DEEP_SLEEP_FINISH_TIME_HR   8 // menuconfig (1 <= . <= 24)
+#define DEEP_SLEEP_START_TIME_HR    16 // menuconfig (1 <= . <= 24)
+#define DEEP_SLEEP_FINISH_TIME_HR   18 // menuconfig (1 <= . <= 24)
 
 
 esp_timer_handle_t timer_sensor_sgp30, timer_deep_sleep;
@@ -134,7 +134,7 @@ void deep_sleep_task(void *pvParameter) {
 
         if (DEEP_SLEEP_START_TIME_HR <= DEEP_SLEEP_FINISH_TIME_HR) {
 
-            if (node_time_hr >= DEEP_SLEEP_START_TIME_HR && node_time_hr <= DEEP_SLEEP_FINISH_TIME_HR) { // Should already be asleep
+            if (node_time_hr >= DEEP_SLEEP_START_TIME_HR && node_time_hr < DEEP_SLEEP_FINISH_TIME_HR) { // Should already be asleep
                 sleep_now  = 1;
                 next_checking_us = calculate_range_us(node_time, DEEP_SLEEP_FINISH_TIME_HR);
             } else {
@@ -143,7 +143,7 @@ void deep_sleep_task(void *pvParameter) {
 
         } else {
 
-            if (node_time_hr >= DEEP_SLEEP_START_TIME_HR || node_time_hr <= DEEP_SLEEP_FINISH_TIME_HR) { // Should already be asleep
+            if (node_time_hr >= DEEP_SLEEP_START_TIME_HR || node_time_hr < DEEP_SLEEP_FINISH_TIME_HR) { // Should already be asleep
                 sleep_now  = 1;
                 next_checking_us = calculate_range_us(node_time, DEEP_SLEEP_FINISH_TIME_HR);
             } else {
@@ -174,7 +174,8 @@ void app_main(void)
     strcpy(ESP_LOCATION, CONFIG_ESP_LOCATION);
     strcpy(ESP_ID, CONFIG_ESP_ID);
     
-    // Initialize
+    // Initialize the  Non-Volatile Storage, a layer over the TCP/IP stack 
+    // and a loop where to register the events of the components
     ESP_ERROR_CHECK(nvs_flash_init());
     ESP_ERROR_CHECK(esp_netif_init());
     ESP_ERROR_CHECK(esp_event_loop_create_default());
