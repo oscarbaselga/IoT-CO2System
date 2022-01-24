@@ -21,6 +21,7 @@
 #include "comm_mqtt.h"
 #include "comm_http.h"
 #include "comm_sntp.h"
+#include "comm_ble.h"
 #include "globals.h"
 
 
@@ -28,12 +29,14 @@
 #define MQTT_SENDING_PERIOD_SEC     3 // menuconfig
 #define PM_SLEEP_MAX_FREQ_MHZ       240 // menuconfig
 #define PM_SLEEP_MIN_FREQ_MHZ       40 // menuconfig
-#define DEEP_SLEEP_START_TIME_HR    16 // menuconfig (1 <= . <= 24)
-#define DEEP_SLEEP_FINISH_TIME_HR   18 // menuconfig (1 <= . <= 24)
+#define DEEP_SLEEP_START_TIME_HR    22 // menuconfig (1 <= . <= 24)
+#define DEEP_SLEEP_FINISH_TIME_HR   8 // menuconfig (1 <= . <= 24)
+#define BLE_ESTIMATION_PERIOD_SEC   15 // menuconfig
+#define BLE_SCANNING_DURATION       10 // menuconfig
 
 
-esp_timer_handle_t timer_sensor_sgp30, timer_deep_sleep;
-SemaphoreHandle_t sgp30_semphr = NULL, deep_sleep_semphr = NULL;
+esp_timer_handle_t timer_sensor_sgp30, timer_deep_sleep, timer_ble;
+SemaphoreHandle_t sgp30_semphr, deep_sleep_semphr, ble_semphr;
 
 
 /* ----------------- AUXILIAR FUNCTIONS ---------------- */
@@ -68,6 +71,11 @@ static void timer_sensor_sgp30_callback(void* arg) {
 // Deep sleep timer callback
 static void timer_deep_sleep_callback(void* arg) {
     xSemaphoreGive(deep_sleep_semphr);
+}
+
+// BLE timer callback
+static void timer_ble_callback(void* arg) {
+    xSemaphoreGive(ble_semphr);
 }
 
 
@@ -167,6 +175,40 @@ void deep_sleep_task(void *pvParameter) {
     }
 }
 
+void ble_task(void *pvParameter) {
+
+    while (1) {
+
+        // Start scan
+        scan_BLE_devices(BLE_SCANNING_DURATION);
+
+        // Wait for the scan to finish
+        vTaskDelay(pdMS_TO_TICKS(BLE_SCANNING_DURATION));
+
+        // CBOR creation
+        CborEncoder root_encoder;
+        uint8_t data_cbor[50];
+        cbor_encoder_init(&root_encoder, data_cbor, sizeof(data_cbor), 0);
+
+        CborEncoder array_encoder;
+        CborEncoder map_encoder;
+        cbor_encoder_create_array(&root_encoder, &array_encoder, 1);    // 1-item length array -> [
+        cbor_encoder_create_map(&array_encoder, &map_encoder, 1);       // 2-item length map -> {
+
+        cbor_encode_text_stringz(&map_encoder, "BLE_people");
+        cbor_encode_uint(&map_encoder, get_people_estimation());
+
+        cbor_encoder_close_container(&array_encoder, &map_encoder);     // }
+        cbor_encoder_close_container(&root_encoder, &array_encoder);    // ]
+
+        mqtt_publish((char*)data_cbor);
+        //ESP_LOGI(TAG_SGP30, "CBOR -> %s", (char*)data_cbor);
+        
+        xSemaphoreTake(ble_semphr, portMAX_DELAY);
+
+    }
+}
+
 
 void app_main(void)
 {
@@ -213,6 +255,20 @@ void app_main(void)
     sgp30_semphr = xSemaphoreCreateBinary();
 
 
+    /* ---------------------- BLUETOOTH --------------------- */
+    // Configuration and inicialization
+    esp_ble_init();
+
+    // Periodic timer for BLE people estimation
+    const esp_timer_create_args_t timer_ble_args = {
+        .callback = &timer_ble_callback,
+        .name = "ble timer"
+    };
+    esp_timer_create(&timer_ble_args, &timer_ble);
+
+    ble_semphr = xSemaphoreCreateBinary();
+
+
     /* --------------------- DEPLOYMENT --------------------- */
     ESP_ERROR_CHECK(example_connect());
 
@@ -227,9 +283,11 @@ void app_main(void)
 
     // SGP30 triggered every second
     esp_timer_start_periodic(timer_sensor_sgp30, SGP30_READING_PERIOD_SEC * 1000000);
+    esp_timer_start_periodic(timer_ble, BLE_ESTIMATION_PERIOD_SEC * 1000000);
     
-    xTaskCreate(&sgp30_task, "SGP30 task", 2048, NULL, 5, NULL);
-    xTaskCreate(&deep_sleep_task, "Deep sleep task", 2048, NULL, 5, NULL);
+    xTaskCreate(&sgp30_task, "SGP30 task", 4096, NULL, 5, NULL);
+    xTaskCreate(&deep_sleep_task, "Deep sleep task", 4096, NULL, 5, NULL);
+    xTaskCreate(&ble_task, "BLE task", 4096, NULL, 5, NULL);
 
 
     vTaskDelete(NULL);
