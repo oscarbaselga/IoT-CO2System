@@ -6,6 +6,9 @@
 #include "esp_log.h"
 #include "cJSON.h"
 
+#include <freertos/FreeRTOS.h>
+#include <freertos/task.h>
+
 #include "globals.h"
 #include "sensor_sgp30.h"
 #include "comm_ble.h"
@@ -121,6 +124,8 @@ static esp_err_t capture_get_handler(httpd_req_t *req) {
 
 
 esp_err_t start_rest_server(void) {
+
+    vTaskDelay(pdMS_TO_TICKS((WAITING_TIME_BW_PROV_HTTP + 1) * 1000));
 
     httpd_handle_t server = NULL;
     httpd_config_t config = HTTPD_DEFAULT_CONFIG();

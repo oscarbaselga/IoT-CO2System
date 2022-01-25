@@ -13,7 +13,6 @@
 #include "esp_spi_flash.h"
 #include "nvs_flash.h"
 #include "esp_netif.h"
-#include "protocol_examples_common.h"
 //#include "cJSON.h"
 #include "cbor.h"
 
@@ -22,6 +21,7 @@
 #include "comm_http.h"
 #include "comm_sntp.h"
 #include "comm_ble.h"
+#include "provisioning/prov.h"
 #include "globals.h"
 
 
@@ -270,7 +270,8 @@ void app_main(void)
 
 
     /* --------------------- DEPLOYMENT --------------------- */
-    ESP_ERROR_CHECK(example_connect());
+    // Provisioning process
+    ESP_ERROR_CHECK(start_esp_provisioning());
 
     // Set system time
     set_sys_time();
