@@ -10,7 +10,7 @@
 #include <freertos/task.h>
 
 #include "globals.h"
-#include "sensor_sgp30.h"
+#include "../sensors/sensor_sgp30.h"
 #include "comm_ble.h"
 
 

@@ -8,8 +8,15 @@
 #include "globals.h"
 
 
-#define MQTT_BROKER_URL     "mqtt://5.196.95.208" // menuconfig (test.mosquitto.org)
+#define MQTT_BROKER_URL     "mqtts://test.mosquitto.org:8883" // ¿menuconfig (test.mosquitto.org)?
 #define MQTT_QOS            0 // menuconfig
+
+#if CONFIG_BROKER_CERTIFICATE_OVERRIDDEN == 1
+static const uint8_t mqtt_test_broker_pem_start[]  = "-----BEGIN CERTIFICATE-----\n" CONFIG_BROKER_CERTIFICATE_OVERRIDE "\n-----END CERTIFICATE-----";
+#else
+extern const uint8_t mqtt_test_broker_pem_start[]   asm("_binary_mqtt_test_broker_pem_start");
+#endif
+extern const uint8_t mqtt_test_broker_pem_end[]   asm("_binary_mqtt_test_broker_pem_end");
 
 
 esp_mqtt_client_handle_t global_client;
@@ -65,6 +72,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 esp_err_t mqtt_app_start(void) {
     esp_mqtt_client_config_t mqtt_cfg = {
         .uri = MQTT_BROKER_URL,
+        .cert_pem = (const char *)mqtt_test_broker_pem_start,
     };
 
     global_client = esp_mqtt_client_init(&mqtt_cfg);

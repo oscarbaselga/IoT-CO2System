@@ -16,11 +16,11 @@
 //#include "cJSON.h"
 #include "cbor.h"
 
-#include "sensor_sgp30.h"
-#include "comm_mqtt.h"
-#include "comm_http.h"
-#include "comm_sntp.h"
-#include "comm_ble.h"
+#include "sensors/sensor_sgp30.h"
+#include "communications/comm_mqtt.h"
+#include "communications/comm_http.h"
+#include "communications/comm_sntp.h"
+#include "communications/comm_ble.h"
 #include "provisioning/prov.h"
 #include "globals.h"
 
