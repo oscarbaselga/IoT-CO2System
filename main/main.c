@@ -31,7 +31,7 @@
 #define PM_SLEEP_MIN_FREQ_MHZ       40 // menuconfig
 #define DEEP_SLEEP_START_TIME_HR    22 // menuconfig (1 <= . <= 24)
 #define DEEP_SLEEP_FINISH_TIME_HR   8 // menuconfig (1 <= . <= 24)
-#define BLE_ESTIMATION_PERIOD_SEC   15 // menuconfig
+#define BLE_ESTIMATION_PERIOD_SEC   900 // menuconfig
 #define BLE_SCANNING_DURATION       10 // menuconfig
 
 

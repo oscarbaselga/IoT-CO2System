@@ -193,7 +193,6 @@ void esp_ble_init(void) {
 
 void scan_BLE_devices(int duration) {   
 	//allocate memory to store the devices
-	//free(ble_dev_found);
 	ble_dev_found = (MAC_BLE_ELEM_t*)malloc(sizeof(MAC_BLE_ELEM_t) * MAX_NUM_BLE_DEVICES);
 	ble_dev_found = &zero_addr;
 

@@ -145,7 +145,7 @@ esp_err_t start_rest_server(void) {
     REST_CHECK(httpd_ssl_start(&server, &conf) == ESP_OK, "Start server failed");
 
     // URI handler for fetching system info
-    // Example: curl https://{IP}/system/info --cacert http_cert.pem
+    // Example: curl https://{IP}:443/system/info --cacert http_cert.pem
     httpd_uri_t system_info_get_uri = {
         .uri = "/system/info",
         .method = HTTP_GET,
