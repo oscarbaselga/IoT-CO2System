@@ -5,7 +5,6 @@
 
 PROJECT_NAME := miot
 
-EXTRA_COMPONENT_DIRS = ./esp_http_server
 COMPONENT_ADD_INCLUDEDIRS := components/include
 
 include $(IDF_PATH)/make/project.mk

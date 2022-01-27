@@ -3,7 +3,7 @@
 
 #define TAG_SGP30           "SENSOR_SGP30"
 #define TAG_MQTT            "COMM_MQTTS"
-#define TAG_HTTP            "COMM_HTTP"
+#define TAG_HTTP            "COMM_HTTPS"
 #define TAG_SNTP            "COMM_SNTP"
 #define TAG_SLEEP           "PWR_SLEEP"
 #define TAG_BLE             "COMM_BLE"

@@ -2,7 +2,7 @@
 
 #include <string.h>
 
-#include "esp_http_server.h"
+#include "esp_https_server.h"
 #include "esp_log.h"
 #include "cJSON.h"
 
@@ -128,13 +128,24 @@ esp_err_t start_rest_server(void) {
     vTaskDelay(pdMS_TO_TICKS((WAITING_TIME_BW_PROV_HTTP + 1) * 1000));
 
     httpd_handle_t server = NULL;
-    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
-    config.uri_match_fn = httpd_uri_match_wildcard;
+    httpd_ssl_config_t conf = HTTPD_SSL_CONFIG_DEFAULT();
 
-    ESP_LOGI(TAG_HTTP, "Starting HTTP Server");
-    REST_CHECK(httpd_start(&server, &config) == ESP_OK, "Start server failed");
+    extern const unsigned char cacert_pem_start[] asm("_binary_http_cert_pem_start");
+    extern const unsigned char cacert_pem_end[]   asm("_binary_http_cert_pem_end");
+    conf.cacert_pem = cacert_pem_start;
+    conf.cacert_len = cacert_pem_end - cacert_pem_start;
+
+    extern const unsigned char prvtkey_pem_start[] asm("_binary_http_key_pem_start");
+    extern const unsigned char prvtkey_pem_end[]   asm("_binary_http_key_pem_end");
+    conf.prvtkey_pem = prvtkey_pem_start;
+    conf.prvtkey_len = prvtkey_pem_end - prvtkey_pem_start;
+
+
+    ESP_LOGI(TAG_HTTP, "Starting HTTPS Server");
+    REST_CHECK(httpd_ssl_start(&server, &conf) == ESP_OK, "Start server failed");
 
     // URI handler for fetching system info
+    // Example: curl https://{IP}/system/info --cacert http_cert.pem
     httpd_uri_t system_info_get_uri = {
         .uri = "/system/info",
         .method = HTTP_GET,
@@ -162,7 +173,7 @@ esp_err_t start_rest_server(void) {
     httpd_register_uri_handler(server, &esp_location_post_uri);
 
     // URI handler for modifying ESP_ID
-    // Example: curl -d "{NEW_ESP_ID}" -X POST http://{IP}/node/esp_id
+    // Example: curl -d "{NEW_ESP_ID}" -X POST https://{IP}/node/esp_id --cacert {CERT_NAME}.pem
     httpd_uri_t esp_id_post_uri = {
         .uri = "/node/esp_id",
         .method = HTTP_POST,

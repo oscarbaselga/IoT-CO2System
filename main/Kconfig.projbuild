@@ -56,6 +56,9 @@ menu "Example Configuration"
         help
             Set the maximum connection attempts to perform when connecting to a Wi-Fi AP.
 
+
+            
+
     config BROKER_URI
         string "Broker URL"
         default "mqtts://test.mosquitto.org:8883"
