@@ -8,8 +8,8 @@
 #include "globals.h"
 
 
-#define MQTT_BROKER_URL     "mqtts://test.mosquitto.org:8883" // ¿menuconfig (test.mosquitto.org)?
-#define MQTT_QOS            0 // menuconfig
+//#define MQTT_BROKER_URL     "mqtts://test.mosquitto.org:8883" // ¿menuconfig (test.mosquitto.org)?
+//#define MQTT_QOS            0 // menuconfig
 
 #if CONFIG_BROKER_CERTIFICATE_OVERRIDDEN == 1
 static const uint8_t mqtt_test_broker_pem_start[]  = "-----BEGIN CERTIFICATE-----\n" CONFIG_BROKER_CERTIFICATE_OVERRIDE "\n-----END CERTIFICATE-----";
@@ -71,7 +71,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
 
 esp_err_t mqtt_app_start(void) {
     esp_mqtt_client_config_t mqtt_cfg = {
-        .uri = MQTT_BROKER_URL,
+        .uri = CONFIG_MQTT_BROKER_URI,
         .cert_pem = (const char *)mqtt_test_broker_pem_start,
     };
 
@@ -87,6 +87,6 @@ void mqtt_publish (char *data) {
     strcpy(topic, ESP_LOCATION);
     strcat(topic, ESP_ID);
 
-    esp_mqtt_client_publish(global_client, topic, data, 0, MQTT_QOS, 0);
+    esp_mqtt_client_publish(global_client, topic, data, 0, CONFIG_MQTT_QOS, 0);
     ESP_LOGI(TAG_MQTT, "Message published in %s", topic);
 }

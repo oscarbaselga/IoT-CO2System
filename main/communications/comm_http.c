@@ -14,7 +14,7 @@
 #include "comm_ble.h"
 
 
-#define CONFIG_HTTP_MAX_CONTENT_LEN     100 // menuconfig
+//#define CONFIG_HTTP_MAX_POST_LEN     100 // menuconfig
 
 #define REST_CHECK(a, str, ...)                                                        \
     do                                                                                 \
@@ -66,7 +66,7 @@ static esp_err_t node_info_get_handler(httpd_req_t *req) {
 // Handler for modifying ESP_LOCATION
 static esp_err_t esp_location_post_handler(httpd_req_t *req) {
     int req_len = req->content_len;
-    if (req_len >= CONFIG_HTTP_MAX_CONTENT_LEN) {
+    if (req_len >= CONFIG_HTTP_MAX_POST_LEN) {
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "content too long");
         return ESP_FAIL;
     }
@@ -87,7 +87,7 @@ static esp_err_t esp_location_post_handler(httpd_req_t *req) {
 // Handler for modifying ESP_ID
 static esp_err_t esp_id_post_handler(httpd_req_t *req) {
     int req_len = req->content_len;
-    if (req_len >= CONFIG_HTTP_MAX_CONTENT_LEN) {
+    if (req_len >= CONFIG_HTTP_MAX_POST_LEN) {
         httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "content too long");
         return ESP_FAIL;
     }

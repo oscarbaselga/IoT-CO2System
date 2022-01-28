@@ -9,8 +9,8 @@
 #define TAG_BLE             "COMM_BLE"
 #define TAG_PROV            "ESP_PROV"
 
-#define CONFIG_ESP_LOCATION        "/INFORMATICA/2/9/" // menuconfig
-#define CONFIG_ESP_ID              "1" // menuconfig
+//#define CONFIG_ESP_LOCATION        "/INFORMATICA/2/9/" // menuconfig
+//#define CONFIG_ESP_ID              "1" // menuconfig
 
 #define WAITING_TIME_BW_PROV_HTTP   10 // menuconfig
 

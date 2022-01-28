@@ -119,7 +119,62 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
-# Example Configuration
+# IoT Project Configuration
+#
+
+#
+# Node information
+#
+CONFIG_ESP_LOCATION="/INFORMATICA/2/9/"
+CONFIG_ESP_ID="1"
+# end of Node information
+
+#
+# Sensors
+#
+
+#
+# SGP30 sensor
+#
+CONFIG_I2C_MASTER_SCL_IO=22
+CONFIG_I2C_MASTER_SDA_IO=21
+CONFIG_I2C_MASTER_FREQ_HZ=100000
+# end of SGP30 sensor
+# end of Sensors
+
+#
+# Communications
+#
+
+#
+# MQTT
+#
+CONFIG_MQTT_BROKER_URI="mqtts://test.mosquitto.org:8883"
+CONFIG_MQTT_QOS=0
+CONFIG_BROKER_CERTIFICATE_OVERRIDE=""
+# end of MQTT
+
+#
+# HTTP API REST
+#
+CONFIG_HTTP_MAX_POST_LEN=100
+# end of HTTP API REST
+
+#
+# BLE
+#
+CONFIG_MAX_BLE_DEVICES=40
+# end of BLE
+
+#
+# SNTP
+#
+CONFIG_SNTP_TIMEZONE="UTC-1"
+# end of SNTP
+# end of Communications
+
+#
+# Provisioning
 #
 CONFIG_EXAMPLE_SSID_SET_MAC=y
 CONFIG_EXAMPLE_PASS="PROV_PASS"
@@ -128,9 +183,8 @@ CONFIG_EXAMPLE_USE_POP=y
 CONFIG_EXAMPLE_POP="abcd1234"
 # CONFIG_EXAMPLE_RESET_PROVISIONED is not set
 CONFIG_EXAMPLE_AP_RECONN_ATTEMPTS=5
-CONFIG_BROKER_URI="mqtts://test.mosquitto.org:8883"
-CONFIG_BROKER_CERTIFICATE_OVERRIDE=""
-# end of Example Configuration
+# end of Provisioning
+# end of IoT Project Configuration
 
 #
 # Compiler options

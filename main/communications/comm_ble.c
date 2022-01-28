@@ -14,7 +14,7 @@
 #include "globals.h"
 
 
-#define MAX_NUM_BLE_DEVICES 40 // menuconfig
+//#define MAX_BLE_DEVICES 40 // menuconfig
 #define BLE_RSSI_THRESOLD	-80
 
 MAC_BLE_ELEM_t zero_addr = {{0,0,0,0,0,0}, NULL};
@@ -193,7 +193,7 @@ void esp_ble_init(void) {
 
 void scan_BLE_devices(int duration) {   
 	//allocate memory to store the devices
-	ble_dev_found = (MAC_BLE_ELEM_t*)malloc(sizeof(MAC_BLE_ELEM_t) * MAX_NUM_BLE_DEVICES);
+	ble_dev_found = (MAC_BLE_ELEM_t*)malloc(sizeof(MAC_BLE_ELEM_t) * CONFIG_MAX_BLE_DEVICES);
 	ble_dev_found = &zero_addr;
 
 	//start scanning 

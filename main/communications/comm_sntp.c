@@ -11,7 +11,7 @@
 
 #include "globals.h"
 
-#define CONFIG_SNTP_TIMEZONE    "UTC-1" // menuconfig
+//#define CONFIG_SNTP_TIMEZONE    "UTC-1" // menuconfig
 
 
 void time_sync_notification_cb(struct timeval *tv)

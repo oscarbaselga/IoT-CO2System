@@ -11,18 +11,20 @@
 #include "globals.h"
 
 
-#define I2C_MASTER_SCL_IO           GPIO_NUM_22 // menuconfig
-#define I2C_MASTER_SDA_IO           GPIO_NUM_21 // menuconfig
+//#define I2C_MASTER_SCL_IO           GPIO_NUM_22 // menuconfig
+//#define I2C_MASTER_SDA_IO           GPIO_NUM_21 // menuconfig
+
+#define I2C_SLAVE_ADDR              0x58
+
 #define I2C_MASTER_NUM              I2C_NUM_0
-#define I2C_MASTER_FREQ_HZ          100000 // menuconfig (max: 400KHz)                  
 #define I2C_MASTER_TX_BUF_DISABLE   0                    
 #define I2C_MASTER_RX_BUF_DISABLE   0
+#define I2C_MASTER_READ             1
+#define I2C_MASTER_WRITE            0
+
 #define I2C_ACK_EN                  1
 #define I2C_ACK                     0  // I2C ack for each byte read 
 #define I2C_NACK                    1  // I2C nack for the last byte
-#define I2C_SLAVE_ADDR              0x58 // menuconfig
-#define I2C_MASTER_READ             1
-#define I2C_MASTER_WRITE            0
 
 
 // SGP30 SENSOR COMMANDS
@@ -51,11 +53,11 @@ void sgp30_config (void) {
     int i2c_master_port = I2C_MASTER_NUM;
     i2c_config_t conf = {
         .mode = I2C_MODE_MASTER, // ESP micro is master
-        .sda_io_num = I2C_MASTER_SDA_IO,
+        .sda_io_num = CONFIG_I2C_MASTER_SDA_IO,
         .sda_pullup_en = GPIO_PULLUP_ENABLE,
-        .scl_io_num = I2C_MASTER_SCL_IO,
+        .scl_io_num = CONFIG_I2C_MASTER_SCL_IO,
         .scl_pullup_en = GPIO_PULLUP_ENABLE,
-        .master.clk_speed = I2C_MASTER_FREQ_HZ,
+        .master.clk_speed = CONFIG_I2C_MASTER_FREQ_HZ,
     };
 
     if(i2c_param_config(i2c_master_port, &conf) != ESP_OK) 

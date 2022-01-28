@@ -1,79 +1,172 @@
-menu "Example Configuration"
+menu "IoT Project Configuration"
 
-    config EXAMPLE_SSID_SET_MAC
-        bool "Use MAC as SSID"
-        default y
-        help
-            Set SoftAP SSID as PROV_<MAC>.
+    menu "Node information"
 
-    config EXAMPLE_SSID
-        string "Wi-Fi SSID"
-        default "PROV_SSID"
-        depends on !EXAMPLE_SSID_SET_MAC
-        help
-            SSID (network name) for the example to connect to.
+        config ESP_LOCATION
+            string "ESP node location"
+            default "/INFORMATICA/2/9/"
+            help
+                Set the initial location of the node as MQTT topic
+                Example: /{building}/{floor}/{room}/
 
-    config EXAMPLE_PASS
-        string "Wi-Fi Password"
-        default "PROV_PASS"
-        help
-            Wi-Fi password (WPA or WPA2) for the example to use.
+        config ESP_ID
+            string "ESP node id"
+            default "1"
+            help
+                Set the identificator of the node
 
-    config EXAMPLE_USE_SEC_1
-        bool
-        default y
-        prompt "Use Security Version 1"
-        help
-            Security version 1 used Curve25519 key exchange for establishing
-            secure session between device and client during provisioning
-
-    config EXAMPLE_USE_POP
-        bool
-        depends on EXAMPLE_USE_SEC_1
-        default y
-        prompt "Use proof-of-possession"
-        help
-            Proof-of-possession can be optionally used to prove that the device is indeed
-            in possession of the user who is provisioning the device. This proof-of-possession
-            is internally used to generate the shared secret through key exchange.
-
-    config EXAMPLE_POP
-        string "Proof-of-possession"
-        default "abcd1234"
-        depends on EXAMPLE_USE_POP
-
-    config EXAMPLE_RESET_PROVISIONED
-        bool
-        default n
-        prompt "Reset provisioned status of the device"
-        help
-            This erases the NVS to reset provisioned status of the device on every reboot.
-            Provisioned status is determined by the Wi-Fi STA configuration, saved on the NVS.
-
-    config EXAMPLE_AP_RECONN_ATTEMPTS
-        int "Maximum AP connection attempts"
-        default 5
-        help
-            Set the maximum connection attempts to perform when connecting to a Wi-Fi AP.
+    endmenu
 
 
-            
+    menu "Sensors"
 
-    config BROKER_URI
-        string "Broker URL"
-        default "mqtts://test.mosquitto.org:8883"
-        help
-            URL of an mqtt broker which this example connects to.
+        menu "SGP30 sensor"
 
-    config BROKER_CERTIFICATE_OVERRIDE
-        string "Broker certificate override"
-        default ""
-        help
-            Please leave empty if broker certificate included from a textfile; otherwise fill in a base64 part of PEM
-            format certificate
+            config I2C_MASTER_SCL_IO
+                int "I2C Master SCL"
+                default 22
+                help
+                    Set I2C Master (ESP node) SCL port
 
-    config BROKER_CERTIFICATE_OVERRIDDEN
-        bool
-        default y if BROKER_CERTIFICATE_OVERRIDE != ""
+            config I2C_MASTER_SDA_IO
+                int "I2C Master SDA"
+                default 21
+                help
+                    Set I2C Master (ESP node) SDA port
+
+            config I2C_MASTER_FREQ_HZ
+                int "I2C Master freq in Hz"
+                range 100000 400000
+                default 100000
+                help
+                    Set I2C Master (ESP node) frequency in Hz
+
+        endmenu
+
+    endmenu
+
+
+    menu "Communications"
+
+        menu "MQTT"
+
+            config MQTT_BROKER_URI
+                string "MQTT broker URL"
+                default "mqtts://test.mosquitto.org:8883"
+                help
+                    Set URL of the MQTT broker
+
+            config MQTT_QOS
+                int "MQTT QoS"
+                range 0 2
+                default 0
+                help
+                    Set QoS of MQTT connection 
+
+            config BROKER_CERTIFICATE_OVERRIDE
+                string "Broker certificate override"
+                default ""
+                help
+                    Please leave empty if broker certificate included from a textfile; otherwise fill in a base64 part of PEM
+                    format certificate
+
+            config BROKER_CERTIFICATE_OVERRIDDEN
+                bool
+                default y if BROKER_CERTIFICATE_OVERRIDE != ""
+
+        endmenu
+
+        menu "HTTP API REST"
+        
+            config HTTP_MAX_POST_LEN
+                int "Max payload lenght (POST request)"
+                default 40
+                help
+                    Max number of BLE devices that can be scanned
+
+        endmenu
+
+        menu "BLE"
+
+            config MAX_BLE_DEVICES
+                int "Max BLE decives"
+                default 40
+                help
+                    Max payload length to send in a POST request in bytes
+
+        endmenu
+
+        menu "SNTP"
+
+            config SNTP_TIMEZONE
+                string "Timezone"
+                default "UTC-1"
+                help
+                    Timezone in which the node is located
+
+        endmenu
+
+    endmenu
+
+
+    menu "Provisioning"
+
+        config EXAMPLE_SSID_SET_MAC
+            bool "Use MAC as SSID"
+            default y
+            help
+                Set SoftAP SSID as PROV_<MAC>
+
+        config EXAMPLE_SSID
+            string "Wi-Fi SSID"
+            default "PROV_SSID"
+            depends on !EXAMPLE_SSID_SET_MAC
+            help
+                SSID to connect
+
+        config EXAMPLE_PASS
+            string "Wi-Fi Password"
+            default "PROV_PASS"
+            help
+                Wi-Fi password (WPA or WPA2) to use
+
+        config EXAMPLE_USE_SEC_1
+            bool
+            default y
+            prompt "Use Security Version 1"
+            help
+                Security version 1 used Curve25519 key exchange for establishing
+                secure session between device and client during provisioning
+
+        config EXAMPLE_USE_POP
+            bool
+            depends on EXAMPLE_USE_SEC_1
+            default y
+            prompt "Use proof-of-possession"
+            help
+                Proof-of-possession can be optionally used to prove that the device is indeed
+                in possession of the user who is provisioning the device. This proof-of-possession
+                is internally used to generate the shared secret through key exchange
+
+        config EXAMPLE_POP
+            string "Proof-of-possession"
+            default "abcd1234"
+            depends on EXAMPLE_USE_POP
+
+        config EXAMPLE_RESET_PROVISIONED
+            bool
+            default n
+            prompt "Reset provisioned status of the device"
+            help
+                This erases the NVS to reset provisioned status of the device on every reboot.
+                Provisioned status is determined by the Wi-Fi STA configuration, saved on the NVS
+
+        config EXAMPLE_AP_RECONN_ATTEMPTS
+            int "Maximum AP connection attempts"
+            default 5
+            help
+                Set the maximum connection attempts to perform when connecting to a Wi-Fi AP
+
+    endmenu
 
 endmenu
