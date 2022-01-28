@@ -26,13 +26,6 @@
 
 
 #define SGP30_READING_PERIOD_SEC    1
-#define MQTT_SENDING_PERIOD_SEC     3 // menuconfig
-#define PM_SLEEP_MAX_FREQ_MHZ       240 // menuconfig
-#define PM_SLEEP_MIN_FREQ_MHZ       40 // menuconfig
-#define DEEP_SLEEP_START_TIME_HR    22 // menuconfig (1 <= . <= 24)
-#define DEEP_SLEEP_FINISH_TIME_HR   8 // menuconfig (1 <= . <= 24)
-#define BLE_ESTIMATION_PERIOD_SEC   900 // menuconfig
-#define BLE_SCANNING_DURATION       10 // menuconfig
 
 
 esp_timer_handle_t timer_sensor_sgp30, timer_deep_sleep, timer_ble;
@@ -87,7 +80,7 @@ void sgp30_task(void *pvParameter) {
     while (1) {
         xSemaphoreTake(sgp30_semphr, portMAX_DELAY);
 
-        if(num_readings < MQTT_SENDING_PERIOD_SEC) {
+        if(num_readings < CONFIG_MQTT_SENDING_PERIOD_SEC) {
             sum_co2 += (uint32_t)sgp30_co2_reading();
             num_readings++;
         } else { // Send result via MQTT
@@ -140,22 +133,22 @@ void deep_sleep_task(void *pvParameter) {
         node_time = get_sys_time();
         int node_time_hr = node_time.tm_hour;
 
-        if (DEEP_SLEEP_START_TIME_HR <= DEEP_SLEEP_FINISH_TIME_HR) {
+        if (CONFIG_DEEP_SLEEP_START_TIME_HR <= CONFIG_DEEP_SLEEP_FINISH_TIME_HR) {
 
-            if (node_time_hr >= DEEP_SLEEP_START_TIME_HR && node_time_hr < DEEP_SLEEP_FINISH_TIME_HR) { // Should already be asleep
+            if (node_time_hr >= CONFIG_DEEP_SLEEP_START_TIME_HR && node_time_hr < CONFIG_DEEP_SLEEP_FINISH_TIME_HR) { // Should already be asleep
                 sleep_now  = 1;
-                next_checking_us = calculate_range_us(node_time, DEEP_SLEEP_FINISH_TIME_HR);
+                next_checking_us = calculate_range_us(node_time, CONFIG_DEEP_SLEEP_FINISH_TIME_HR);
             } else {
-                next_checking_us = calculate_range_us(node_time, DEEP_SLEEP_START_TIME_HR);
+                next_checking_us = calculate_range_us(node_time, CONFIG_DEEP_SLEEP_START_TIME_HR);
             }
 
         } else {
 
-            if (node_time_hr >= DEEP_SLEEP_START_TIME_HR || node_time_hr < DEEP_SLEEP_FINISH_TIME_HR) { // Should already be asleep
+            if (node_time_hr >= CONFIG_DEEP_SLEEP_START_TIME_HR || node_time_hr < CONFIG_DEEP_SLEEP_FINISH_TIME_HR) { // Should already be asleep
                 sleep_now  = 1;
-                next_checking_us = calculate_range_us(node_time, DEEP_SLEEP_FINISH_TIME_HR);
+                next_checking_us = calculate_range_us(node_time, CONFIG_DEEP_SLEEP_FINISH_TIME_HR);
             } else {
-                next_checking_us = calculate_range_us(node_time, DEEP_SLEEP_START_TIME_HR);
+                next_checking_us = calculate_range_us(node_time, CONFIG_DEEP_SLEEP_START_TIME_HR);
             }
 
         }
@@ -180,10 +173,10 @@ void ble_task(void *pvParameter) {
     while (1) {
 
         // Start scan
-        scan_BLE_devices(BLE_SCANNING_DURATION);
+        scan_BLE_devices(CONFIG_BLE_SCANNING_DURATION_SEC);
 
         // Wait for the scan to finish
-        vTaskDelay(pdMS_TO_TICKS(BLE_SCANNING_DURATION));
+        vTaskDelay(pdMS_TO_TICKS(CONFIG_BLE_SCANNING_DURATION_SEC));
 
         // CBOR creation
         CborEncoder root_encoder;
@@ -225,8 +218,8 @@ void app_main(void)
 
     /* ------------------ POWER MANAGEMENT ------------------ */
     esp_pm_config_esp32_t conf_sleep_mode = {
-        .max_freq_mhz = PM_SLEEP_MAX_FREQ_MHZ,
-        .min_freq_mhz = PM_SLEEP_MIN_FREQ_MHZ,
+        .max_freq_mhz = CONFIG_PM_SLEEP_MAX_FREQ_MHZ,
+        .min_freq_mhz = CONFIG_PM_SLEEP_MIN_FREQ_MHZ,
         .light_sleep_enable = 1,
     };
     esp_pm_configure(&conf_sleep_mode);
@@ -284,7 +277,7 @@ void app_main(void)
 
     // SGP30 triggered every second
     esp_timer_start_periodic(timer_sensor_sgp30, SGP30_READING_PERIOD_SEC * 1000000);
-    esp_timer_start_periodic(timer_ble, BLE_ESTIMATION_PERIOD_SEC * 1000000);
+    esp_timer_start_periodic(timer_ble, CONFIG_BLE_ESTIMATION_PERIOD_SEC * 1000000);
     
     xTaskCreate(&sgp30_task, "SGP30 task", 4096, NULL, 5, NULL);
     xTaskCreate(&deep_sleep_task, "Deep sleep task", 4096, NULL, 5, NULL);

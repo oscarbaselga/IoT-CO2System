@@ -11,9 +11,6 @@
 #include "globals.h"
 
 
-//#define I2C_MASTER_SCL_IO           GPIO_NUM_22 // menuconfig
-//#define I2C_MASTER_SDA_IO           GPIO_NUM_21 // menuconfig
-
 #define I2C_SLAVE_ADDR              0x58
 
 #define I2C_MASTER_NUM              I2C_NUM_0

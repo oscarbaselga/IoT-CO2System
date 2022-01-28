@@ -1,6 +1,6 @@
 menu "IoT Project Configuration"
 
-    menu "Node information"
+    menu "Node"
 
         config ESP_LOCATION
             string "ESP node location"
@@ -14,6 +14,36 @@ menu "IoT Project Configuration"
             default "1"
             help
                 Set the identificator of the node
+
+        menu "Power management"
+
+            config PM_SLEEP_MAX_FREQ_MHZ
+                int "Max CPU freq (MHz)"
+                default 240
+                help
+                    Set max CPU frequency in MHz
+
+            config PM_SLEEP_MIN_FREQ_MHZ
+                int "Min CPU freq (MHz)"
+                default 40
+                help
+                    Set min CPU frequency in MHz
+
+            config DEEP_SLEEP_START_TIME_HR
+                int "Time of entry into Deep Sleep"
+                range 1 24
+                default 22
+                help
+                    Hour of the day when the node enters Deep Sleep mode
+
+            config DEEP_SLEEP_FINISH_TIME_HR
+                int "Time of exit from Deep Sleep"
+                range 1 24
+                default 8
+                help
+                    Hour of the day when the node exists Deep Sleep mode
+
+        endmenu
 
     endmenu
 
@@ -35,7 +65,7 @@ menu "IoT Project Configuration"
                     Set I2C Master (ESP node) SDA port
 
             config I2C_MASTER_FREQ_HZ
-                int "I2C Master freq in Hz"
+                int "I2C Master freq (Hz)"
                 range 100000 400000
                 default 100000
                 help
@@ -61,7 +91,13 @@ menu "IoT Project Configuration"
                 range 0 2
                 default 0
                 help
-                    Set QoS of MQTT connection 
+                    Set QoS of MQTT connection
+
+            config MQTT_SENDING_PERIOD_SEC
+                int "MQTT sending period (secs)"
+                default 3
+                help
+                    Set MQTT message sending period in secs
 
             config BROKER_CERTIFICATE_OVERRIDE
                 string "Broker certificate override"
@@ -87,6 +123,18 @@ menu "IoT Project Configuration"
         endmenu
 
         menu "BLE"
+
+            config BLE_ESTIMATION_PERIOD_SEC
+                int "People estimation period (secs)"
+                default 900
+                help
+                    Period of the people estimation and thus of the MQTT message
+            
+            config BLE_SCANNING_DURATION_SEC
+                int "Scanning duration for people estimation (secs)"
+                default 10
+                help
+                    Scanning duration to estimate the number of people in the room in secs
 
             config MAX_BLE_DEVICES
                 int "Max BLE decives"

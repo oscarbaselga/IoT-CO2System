@@ -8,9 +8,6 @@
 #include "globals.h"
 
 
-//#define MQTT_BROKER_URL     "mqtts://test.mosquitto.org:8883" // ¿menuconfig (test.mosquitto.org)?
-//#define MQTT_QOS            0 // menuconfig
-
 #if CONFIG_BROKER_CERTIFICATE_OVERRIDDEN == 1
 static const uint8_t mqtt_test_broker_pem_start[]  = "-----BEGIN CERTIFICATE-----\n" CONFIG_BROKER_CERTIFICATE_OVERRIDE "\n-----END CERTIFICATE-----";
 #else

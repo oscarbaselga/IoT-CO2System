@@ -14,7 +14,6 @@
 #include "globals.h"
 
 
-//#define MAX_BLE_DEVICES 40 // menuconfig
 #define BLE_RSSI_THRESOLD	-80
 
 MAC_BLE_ELEM_t zero_addr = {{0,0,0,0,0,0}, NULL};

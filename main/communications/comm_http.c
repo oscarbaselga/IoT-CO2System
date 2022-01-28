@@ -14,8 +14,6 @@
 #include "comm_ble.h"
 
 
-//#define CONFIG_HTTP_MAX_POST_LEN     100 // menuconfig
-
 #define REST_CHECK(a, str, ...)                                                        \
     do                                                                                 \
     {                                                                                  \
