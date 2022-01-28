@@ -22,3 +22,7 @@ This section describes all the technical requirements implemented in the project
 - As these protocols involve traffic overhead, the data has been sent in CBOR representation.
 - These protocols should not be used without security mechanisms, so both MQTT and HTTP have been developed on top of SSL/TLS. For MQTT SSL, the broker's certificate was uploaded to the node, and for HTTPS, the node generated its own private key and certificate, which is passed during requests from the host.
 - Lastly, a dashboard has been designed in Node-RED to visualise data traffic and manage a global view of the system.
+
+### Authors
+Oscar Baselga Lahoz (Computer Engineer)
+Jon Ayuso Hernández (Computer Engineer)
