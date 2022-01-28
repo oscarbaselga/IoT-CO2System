@@ -2,8 +2,12 @@
 #define COMM_SNTP_H_
 
 #include <time.h>
+#include "esp_err.h"
 
-void set_sys_time (void);
+/* Set the current time to the node system time */
+esp_err_t set_sys_time (void);
+
+/* Get the system time of the node */
 struct tm get_sys_time (void);
 
 #endif

@@ -79,12 +79,15 @@ esp_err_t app_prov_configure_sta(wifi_config_t *wifi_cfg);
 esp_err_t app_prov_start_softap_provisioning(const char *ssid, const char *pass,
                                              int security, const protocomm_security_pop_t *pop);
 
-
-// Example: 
-//      1. cd esp/esp-idf/tools/esp_prov/
-//      2. pip install -r requirements.txt
-//          pip install -r requirements_linux_extra.txt
-//      3. python esp_prov.py --transport softap --service_name "192.168.4.1:80" --sec_ver 1 --pop "{proofofpossesion}" --ssid "{SSID_prov}" --passphrase "{PASS_prov}"
+/**
+ *  Starts the provisioning process
+ *  Usage example for provisioning the node: 
+ *      1. $ cd esp/esp-idf/tools/esp_prov/
+ *      2. $ pip install -r requirements.txt
+ *         $ pip install -r requirements_linux_extra.txt
+ *      3. $ python esp_prov.py --transport softap --service_name "192.168.4.1:80" 
+                --sec_ver 1 --pop "{proofofpossesion}" --ssid "{SSID}" --passphrase "{password}"
+ */          
 esp_err_t start_esp_provisioning(void);
 
 #endif

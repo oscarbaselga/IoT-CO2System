@@ -25,7 +25,7 @@
     } while (0)
 
 
-// Handler for getting system info
+/* Handler for getting system info */
 static esp_err_t system_info_get_handler(httpd_req_t *req) {
     httpd_resp_set_type(req, "application/json");
 
@@ -44,7 +44,7 @@ static esp_err_t system_info_get_handler(httpd_req_t *req) {
     return ESP_OK;
 }
 
-// Handler for getting node info
+/* Handler for getting node info */
 static esp_err_t node_info_get_handler(httpd_req_t *req) {
     httpd_resp_set_type(req, "application/json");
 
@@ -61,7 +61,7 @@ static esp_err_t node_info_get_handler(httpd_req_t *req) {
     return ESP_OK;
 }
 
-// Handler for modifying ESP_LOCATION
+/* Handler for modifying ESP_LOCATION */
 static esp_err_t esp_location_post_handler(httpd_req_t *req) {
     int req_len = req->content_len;
     if (req_len >= CONFIG_HTTP_MAX_POST_LEN) {
@@ -82,7 +82,7 @@ static esp_err_t esp_location_post_handler(httpd_req_t *req) {
     return ESP_OK;
 }
 
-// Handler for modifying ESP_ID
+/* Handler for modifying ESP_ID */
 static esp_err_t esp_id_post_handler(httpd_req_t *req) {
     int req_len = req->content_len;
     if (req_len >= CONFIG_HTTP_MAX_POST_LEN) {
@@ -103,7 +103,7 @@ static esp_err_t esp_id_post_handler(httpd_req_t *req) {
     return ESP_OK;
 }
 
-// Handler for capturing sensor data
+/* Handler for capturing sensor data */
 static esp_err_t capture_get_handler(httpd_req_t *req) {
     httpd_resp_set_type(req, "application/json");
 
@@ -123,16 +123,19 @@ static esp_err_t capture_get_handler(httpd_req_t *req) {
 
 esp_err_t start_rest_server(void) {
 
+    /* Waiting time to ensure provisioning system has been completed */
     vTaskDelay(pdMS_TO_TICKS((WAITING_TIME_BW_PROV_HTTP + 1) * 1000));
 
     httpd_handle_t server = NULL;
     httpd_ssl_config_t conf = HTTPD_SSL_CONFIG_DEFAULT();
 
+    /* Load HTTPS server certificate */
     extern const unsigned char cacert_pem_start[] asm("_binary_http_cert_pem_start");
     extern const unsigned char cacert_pem_end[]   asm("_binary_http_cert_pem_end");
     conf.cacert_pem = cacert_pem_start;
     conf.cacert_len = cacert_pem_end - cacert_pem_start;
 
+    /* Load HTTPS server private key */
     extern const unsigned char prvtkey_pem_start[] asm("_binary_http_key_pem_start");
     extern const unsigned char prvtkey_pem_end[]   asm("_binary_http_key_pem_end");
     conf.prvtkey_pem = prvtkey_pem_start;
@@ -142,8 +145,11 @@ esp_err_t start_rest_server(void) {
     ESP_LOGI(TAG_HTTP, "Starting HTTPS Server");
     REST_CHECK(httpd_ssl_start(&server, &conf) == ESP_OK, "Start server failed");
 
-    // URI handler for fetching system info
-    // Example: curl https://{IP}:443/system/info --cacert http_cert.pem
+    /**
+     *  URI handler for fetching system info
+     *  Usage example: 
+     *   curl https://{IP}:443/system/info --cacert http_cert.pem
+     */
     httpd_uri_t system_info_get_uri = {
         .uri = "/system/info",
         .method = HTTP_GET,
@@ -152,7 +158,7 @@ esp_err_t start_rest_server(void) {
     };
     httpd_register_uri_handler(server, &system_info_get_uri);
 
-    // URI handler for fetching node info
+    /* URI handler for fetching node info */
     httpd_uri_t node_info_get_uri = {
         .uri = "/node/info",
         .method = HTTP_GET,
@@ -161,7 +167,7 @@ esp_err_t start_rest_server(void) {
     };
     httpd_register_uri_handler(server, &node_info_get_uri);
 
-    // URI handler for modifying ESP_LOCATION
+    /* URI handler for modifying ESP_LOCATION */
     httpd_uri_t esp_location_post_uri = {
         .uri = "/node/esp_location",
         .method = HTTP_POST,
@@ -170,8 +176,11 @@ esp_err_t start_rest_server(void) {
     };
     httpd_register_uri_handler(server, &esp_location_post_uri);
 
-    // URI handler for modifying ESP_ID
-    // Example: curl -d "{NEW_ESP_ID}" -X POST https://{IP}/node/esp_id --cacert {CERT_NAME}.pem
+    /**
+     *  URI handler for modifying ESP_ID
+     *  Usage example: 
+     *   curl -d "{NEW_ESP_ID}" -X POST https://{IP}/node/esp_id --cacert {CERT_NAME}.pem
+     */
     httpd_uri_t esp_id_post_uri = {
         .uri = "/node/esp_id",
         .method = HTTP_POST,
@@ -180,7 +189,7 @@ esp_err_t start_rest_server(void) {
     };
     httpd_register_uri_handler(server, &esp_id_post_uri);
 
-    // URI handler for acquiring data (SGP30 and people estimation)
+    /* URI handler for acquiring data (SGP30 and people estimation) */
     httpd_uri_t capture_get_uri = {
         .uri = "/node/capture",
         .method = HTTP_GET,

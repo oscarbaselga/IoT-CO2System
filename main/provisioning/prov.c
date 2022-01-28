@@ -164,7 +164,6 @@ static void app_prov_event_handler(void* handler_arg, esp_event_base_t event_bas
              * reconnect and thus the user app will see connection timed out,
              * signaling a failure in provisioning. */
             esp_timer_start_once(g_prov->timer, WAITING_TIME_BW_PROV_HTTP*1000000);
-            //esp_timer_start_once(g_prov->timer, 1000U);
         }
     } else if (event_base == WIFI_EVENT && event_id == WIFI_EVENT_STA_DISCONNECTED) {
         ESP_LOGE(TAG_PROV, "STA Disconnected");

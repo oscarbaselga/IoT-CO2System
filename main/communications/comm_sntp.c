@@ -17,6 +17,7 @@ void time_sync_notification_cb(struct timeval *tv)
     ESP_LOGI(TAG_SNTP, "Notification of a time synchronization event");
 }
 
+/* Initialize the SNTP */
 static void initialize_sntp(void) {
     ESP_LOGI(TAG_SNTP, "Initializing SNTP");
     sntp_setoperatingmode(SNTP_OPMODE_POLL);
@@ -30,7 +31,7 @@ static void initialize_sntp(void) {
 static void obtain_time(void) {
     initialize_sntp();
 
-    // wait for time to be set
+    /* Wait for time to be set */
     time_t now = 0;
     struct tm timeinfo = { 0 };
     while (sntp_get_sync_status() == SNTP_SYNC_STATUS_RESET) {
@@ -41,23 +42,25 @@ static void obtain_time(void) {
     localtime_r(&now, &timeinfo);
 }
 
-void set_sys_time (void) {
+esp_err_t set_sys_time (void) {
     time_t now;
     struct tm timeinfo;
     time(&now);
     localtime_r(&now, &timeinfo);
 
-    // Is time set? If not, tm_year will be (1970 - 1900).
+    /* Is time set? If not, tm_year will be (1970 - 1900) */
     if (timeinfo.tm_year < (2016 - 1900)) {
         ESP_LOGI(TAG_SNTP, "Time is not set yet. Getting time over NTP.");
         obtain_time();
-        // update 'now' variable with current time
+        /* Update 'now' variable with current time */
         time(&now);
     }
     
-    // Set timezone
+    /* Set timezone */
     setenv("TZ", CONFIG_SNTP_TIMEZONE, 1);
     tzset();
+
+    return ESP_OK;
 }
 
 struct tm get_sys_time (void) {

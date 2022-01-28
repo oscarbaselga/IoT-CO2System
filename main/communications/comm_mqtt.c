@@ -8,8 +8,10 @@
 #include "globals.h"
 
 
+/* Load the CA certificate to access the MQTT broker */
 #if CONFIG_BROKER_CERTIFICATE_OVERRIDDEN == 1
-static const uint8_t mqtt_test_broker_pem_start[]  = "-----BEGIN CERTIFICATE-----\n" CONFIG_BROKER_CERTIFICATE_OVERRIDE "\n-----END CERTIFICATE-----";
+static const uint8_t mqtt_test_broker_pem_start[]  = 
+    "-----BEGIN CERTIFICATE-----\n" CONFIG_BROKER_CERTIFICATE_OVERRIDE "\n-----END CERTIFICATE-----";
 #else
 extern const uint8_t mqtt_test_broker_pem_start[]   asm("_binary_mqtt_test_broker_pem_start");
 #endif
