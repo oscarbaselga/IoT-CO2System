@@ -198,6 +198,7 @@ esp_err_t esp_ble_init(void) {
     }
     ESP_LOGI(TAG_BLE, "Bluetooth initialized.");
 
+	/* Initialize global variable */
 	ble_last_estimation = 1;
 
 	return ESP_OK;
