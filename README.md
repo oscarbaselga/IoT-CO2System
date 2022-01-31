@@ -6,12 +6,12 @@ This project is part of the IoT Master's Degree at the Complutense University of
 - Transmit all these information via MQTT.
 - Interact with external users through an API REST.
 
-### Entorno
+### Environment
 During the development of this project, the ESP-IDF v4.1.2 has been used on an ESP32-DevKitC v4. Most of the tools and components offered by ESP-IDF have been integrated into the project, so this must be taken into account when exporting the project.
 
 The gas sensor for measuring the air quality is the SGP30 developed by Sensirion.
 
-### Requisitos técnicos
+### Technical requirements
 This section describes all the technical requirements implemented in the project.
 - An I2C interface has been developed to capture data from the SGP30 sensor. This sensor is able to measure the quantity of CO2 (ppm) and humidity (%) in the air. In this project, only the CO2 has been taken.
 - The power consumption of the node is an important issue, so two solutions has been included. The first one allows the ESP to enter Light Sleep whenever it deems appropiate. The second is to enter Deep Sleep in a pre-defined time interval, e.g. from 10 PM to 8 AM. These two methods help the node to optimise energy consumption.
