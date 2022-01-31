@@ -17,5 +17,5 @@ And they can be converted into PEM files with:
  $ openssl rsa -in {KEY_NAME}.key -text > {KEY_NAME}.pem
 ```
 
-*Actual CN value is IP 192.168.43.94* 
+*Two certificates are available, one for IP 192.168.43.94 and one for IP 192.168.1.45*
 
