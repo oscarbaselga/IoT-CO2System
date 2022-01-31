@@ -24,7 +24,7 @@ MAC_BLE_ELEM_t zero_addr = {{0,0,0,0,0,0}, NULL};
 MAC_BLE_ELEM_t* ble_dev_found;
 
 /* Last estimation done */
-static uint8_t last_total_dev = 0;
+static uint8_t ble_last_estimation;
 
 
 /**
@@ -97,8 +97,8 @@ static void clear_array (void) {
 		free(ble_dev_aux);
 	}
 
-	last_total_dev = total_dev;
-	ESP_LOGI(TAG_BLE,"Number of devices in the room -> %d", total_dev);
+	ble_last_estimation = total_dev;
+	ESP_LOGI(TAG_BLE,"Number of devices in the room -> %d", ble_last_estimation);
 }
 
 /* Callback for GAP events */
@@ -198,6 +198,8 @@ esp_err_t esp_ble_init(void) {
     }
     ESP_LOGI(TAG_BLE, "Bluetooth initialized.");
 
+	ble_last_estimation = 1;
+
 	return ESP_OK;
 
 }
@@ -212,5 +214,5 @@ void scan_BLE_devices(int duration) {
 }
 
 uint8_t get_people_estimation (void) {
-	return last_total_dev;
+	return ble_last_estimation;
 }

@@ -32,7 +32,6 @@
  */
 #define SGP30_READING_PERIOD_SEC    1
 
-
 /**
  *  Timers and semaphores used by the implemented tasks
  */
@@ -223,21 +222,25 @@ void ble_task(void *pvParameter) {
         /* Start scan */
         scan_BLE_devices(CONFIG_BLE_SCANNING_DURATION_SEC);
 
-        /* Wait for the scan to finish */
-        vTaskDelay(pdMS_TO_TICKS(CONFIG_BLE_SCANNING_DURATION_SEC));
+        /* Wait for the scan to finish plus one sec to ensure BLE scanning has ended */
+        vTaskDelay(pdMS_TO_TICKS((CONFIG_BLE_SCANNING_DURATION_SEC + 1) * 1000));
 
         /* CBOR creation */
         CborEncoder root_encoder;
-        uint8_t data_cbor[50];
+        uint8_t data_cbor[100];
         cbor_encoder_init(&root_encoder, data_cbor, sizeof(data_cbor), 0);
 
         CborEncoder array_encoder;
         CborEncoder map_encoder;
         cbor_encoder_create_array(&root_encoder, &array_encoder, 1); // 1-item length array -> [
-        cbor_encoder_create_map(&array_encoder, &map_encoder, 1);    // 2-item length map -> {
+        cbor_encoder_create_map(&array_encoder, &map_encoder, 2);    // 2-item length map -> {
 
+        cbor_encode_text_stringz(&map_encoder, "ESP_ID");
+        cbor_encode_text_stringz(&map_encoder, ESP_ID);
+
+        uint8_t ble_last_estimation = get_people_estimation();
         cbor_encode_text_stringz(&map_encoder, "BLE_people");
-        cbor_encode_uint(&map_encoder, get_people_estimation());
+        cbor_encode_uint(&map_encoder, ble_last_estimation);
 
         cbor_encoder_close_container(&array_encoder, &map_encoder);  // }
         cbor_encoder_close_container(&root_encoder, &array_encoder); // ]
